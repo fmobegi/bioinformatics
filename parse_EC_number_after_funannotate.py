@@ -45,7 +45,7 @@ with open(input_file) as file:
             #get enzyme name
             # if EC number is incomplete (1, 1.1 or 1.1.1 instead of 1.1.1.1), don't bother looking it up
             if ec.count('.') == 3:
-                enzyme_name = scrape_ec(ec)
+                enzyme_name = scrape_ec(ec).replace(",","%2C")
                 #print('=====> all good')
             else:
                 enzyme_name = ''                

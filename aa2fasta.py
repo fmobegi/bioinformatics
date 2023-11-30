@@ -22,7 +22,9 @@ else:
 if args.output:
     output_file = Path(args.output)
 else:
-    output_file = Path(os.path.join(os.getcwd(),os.path.basename(input_file)+'.fasta'))
+    output_file = Path(
+        os.path.join(os.getcwd(), f'{os.path.basename(input_file)}.fasta')
+    )
 
 fasta = {}
 
@@ -56,4 +58,4 @@ with open(input_file) as file:
 
 print("Writing: ", output_file)
 for element in fasta:
-    print('>'+element, '\n'+fasta[element], file=open(output_file,"a"))
+    print(f'>{element}', '\n'+fasta[element], file=open(output_file,"a"))

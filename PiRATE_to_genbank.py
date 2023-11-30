@@ -24,7 +24,9 @@ else:
 if args.output:
     output_file = Path(args.output)
 else:
-    output_file = Path(os.path.join(os.getcwd(),os.path.basename(input_file)+'.fixed.gff'))
+    output_file = Path(
+        os.path.join(os.getcwd(), f'{os.path.basename(input_file)}.fixed.gff')
+    )
 
 gff = {}
 
@@ -40,9 +42,7 @@ with open(input_file) as file:
         
         #look for the 'PiRATE' identifier and then check for the type of repeat
         if line[1] == "PiRATE":
-            elements = []
-            for element in line:
-                elements.append(element)
+            elements = list(line)
             if elements[2] == "LTR":                
                 if "Gypsy" in line[8]:
                     elements[2] = "mobile_element"
@@ -53,7 +53,7 @@ with open(input_file) as file:
                 else:
                     elements[2] = "repeat_region"
                     elements[8] += "; rpt_type=long_terminal_repeat; rpt_family=LTR"
-                                        
+
 
             elif elements[2] == "noCat":
                 elements[2] = "repeat_region"
@@ -66,11 +66,11 @@ with open(input_file) as file:
             elif elements[2] == "TRIM":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=retrotransposon:TRIM"
-                
+
             elif elements[2] == "DIRS":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=retrotransposon:DIRS"
-                
+
             elif elements[2] == "LINE":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=LINE "
@@ -93,8 +93,8 @@ with open(input_file) as file:
 
                 elif "CACTA" in line[8]:
                     rpt_family = "CACTA"
-                    elements[8] += "; rpt_type=" + rpt_type + "; rpt_family=" + rpt_family
-            
+                    elements[8] += f"; rpt_type={rpt_type}; rpt_family={rpt_family}"
+
                 elif "MuDR" in line[8]:
                     elements[2] = "mobile_element"
                     elements[8] += "; mobile_element_type=transposon:MULE-MuDR "
@@ -104,17 +104,17 @@ with open(input_file) as file:
                     elements[8] += "; mobile_element_type=transposon:PIF_Harbinger "
 
                 else:
-                    elements[8]+="; rpt_type="+rpt_type
-                    
+                    elements[8] += f"; rpt_type={rpt_type}"
+
             elif elements[2] == "SSR":
                 rpt_type = "other"
                 elements[2] = "repeat_region"
-                elements[8]+="; rpt_type="+rpt_type
+                elements[8] += f"; rpt_type={rpt_type}"
 
             elif elements[2] == "LARD":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=retrotransposon:LARD"
-            
+
             elif elements[2] == "Helitron":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=transposon:Helitron"
@@ -122,13 +122,13 @@ with open(input_file) as file:
             elif elements[2] == "Maverick":
                 elements[2] = "mobile_element"
                 elements[8] += "; mobile_element_type=transposon:Maverick"
-            
+
             else:
                 print("########################################################################")
                 print("# Please fix this script and add filters for the following repeat type #")
                 print("########################################################################")
                 print(line)
-                print("Look for this: " + line[2])
+                print(f"Look for this: {line[2]}")
                 print("########################################################################")
                 raise SystemExit
 

@@ -26,7 +26,9 @@ else:
 if args.output:
     output_file = Path(args.output)
 else:
-    output_file = Path(os.path.join(os.getcwd(),os.path.basename(input_file)+'.fasta'))
+    output_file = Path(
+        os.path.join(os.getcwd(), f'{os.path.basename(input_file)}.fasta')
+    )
 
 fasta = {}
 print("=================================================================")
@@ -51,12 +53,11 @@ with open(input_file) as file:
         if line[0] == '>':
             id = line[1:]
             fasta[id] = ''
+        elif line[-1] == '*':
+            fasta[id] += line[:-1]
+            EndStopCodons += 1
         else:
-            if line[-1] == '*':
-                fasta[id] += line[:-1]
-                EndStopCodons += 1
-            else:
-                fasta[id] += line
+            fasta[id] += line
 
 delete = [key for key in fasta if '*' in fasta[key]]
 
@@ -69,5 +70,5 @@ print("Removed", InlineStopCodons, "sequence(s) due to inline stop codon(s).")
 print("=================================================================")
 print("Writing: ", output_file)
 print("=================================================================")
-for element in fasta:
-    print('>'+element, '\n'+fasta[element], file=open(output_file,"a"))
+for element, value in fasta.items():
+    print(f'>{element}', '\n' + value, file=open(output_file,"a"))

@@ -19,22 +19,18 @@ else:
     #raise SystemExit
 
 def scrape_ec(ec):
-    url = "https://enzyme.expasy.org/EC/" + ec
+    url = f"https://enzyme.expasy.org/EC/{ec}"
     html_content = requests.get(url).text
     soup = BeautifulSoup(html_content, "lxml")
     ecnumber = soup.title.prettify()
-    #parse only the name out of the title
-    enzyme_name = (ecnumber[(ecnumber.find(ec))+len(ec)+1:-10])
-    return enzyme_name
+    return ecnumber[(ecnumber.find(ec))+len(ec)+1:-10]
 
 
 
 with open(input_file) as file:
     input = csv.reader(file, delimiter='\t')
     for line in input:
-        elements = []
-        for element in line:
-            elements.append(element)
+        elements = list(line)
         if len(elements) < 8:
             continue
         if "EC_number" in elements[8]:
@@ -44,43 +40,19 @@ with open(input_file) as file:
             #print(ec)
             #get enzyme name
             # if EC number is incomplete (1, 1.1 or 1.1.1 instead of 1.1.1.1), don't bother looking it up
-            if ec.count('.') == 3:
-                enzyme_name = scrape_ec(ec).replace(",","%2C")
-                #print('=====> all good')
-            else:
-                enzyme_name = ''                
-                #print('=====> incomplete ec')
+            enzyme_name = scrape_ec(ec).replace(",","%2C") if ec.count('.') == 3 else ''
+            idx = 0
             # Check if enzyme name is blank and remove EC_number tag
-            if len(enzyme_name) < 1 :
+            if len(enzyme_name) < 1 or "entry" in enzyme_name:
                 element_8 = elements[8].split(";")
-                idx = 0
                 for i in element_8:
                     idx +=1
                     if i.startswith("EC_number"):
                         break
                 del element_8[idx - 1]
-                element_8_new =';'.join(map(str,element_8))
-                elements[8] = element_8_new
-                print(*elements, sep='\t')
-            
-            # if enzyme name contains 'entry' (moved or deleted) remove EC_number tag
-            elif "entry" in enzyme_name:
-                element_8 = elements[8].split(";")
-                idx = 0
-                for i in element_8:
-                    idx +=1
-                    if i.startswith("EC_number"):
-                        break
-                del element_8[idx - 1]
-                element_8_new =';'.join(map(str,element_8))
-                elements[8] = element_8_new
-                print(*elements, sep='\t')
-            
-            # otherwise update product name
             else:
                 #print(enzyme_name)
                 element_8 = elements[8].split(";")
-                idx = 0
                 idx_product = 0
                 for i in element_8:
                     idx +=1
@@ -89,9 +61,7 @@ with open(input_file) as file:
                     if i.startswith("EC_number"):
                         idx_EC = idx
 
-                element_8[idx_product-1] = 'product='+enzyme_name
-                element_8_new =';'.join(map(str,element_8))
-                elements[8] = element_8_new
-                print(*elements, sep='\t')
-        else:
-            print(*elements, sep='\t')
+                element_8[idx_product-1] = f'product={enzyme_name}'
+            element_8_new =';'.join(map(str,element_8))
+            elements[8] = element_8_new
+        print(*elements, sep='\t')
